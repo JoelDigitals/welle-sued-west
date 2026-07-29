@@ -5,18 +5,28 @@ Für den lokalen Start reichen die Standardwerte. Für einen echten Live-Betrieb
 unbedingt SECRET_KEY, DEBUG und ALLOWED_HOSTS anpassen (siehe README.md).
 """
 
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # --- Sicherheit --------------------------------------------------------
-# WICHTIG: Vor dem Live-Betrieb einen eigenen, geheimen Wert setzen und
-# NICHT im Repository speichern (z. B. über eine Umgebungsvariable laden).
-SECRET_KEY = 'django-insecure-bitte-vor-dem-live-betrieb-aendern-!!!'
+# SECRET_KEY und DEBUG kommen aus Umgebungsvariablen, damit auf Render kein
+# unsicherer Default landet. Lokal ohne gesetzte Variablen bleibt das
+# Verhalten wie bisher (Debug an, Platzhalter-Key).
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY', 'django-insecure-bitte-vor-dem-live-betrieb-aendern-!!!'
+)
 
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*']
+# Render setzt RENDER_EXTERNAL_HOSTNAME automatisch auf die *.onrender.com-
+# Domain des Service - die wird hier übernommen, damit ALLOWED_HOSTS nicht
+# von Hand gepflegt werden muss.
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # --- Externe Player-/Metadaten-Quelle -----------------------------------
 # Zentral an einer Stelle konfiguriert, damit sie sich leicht austauschen
@@ -40,6 +50,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -91,5 +102,13 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
