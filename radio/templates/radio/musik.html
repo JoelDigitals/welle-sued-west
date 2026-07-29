@@ -1,0 +1,57 @@
+{% extends 'radio/base.html' %}
+
+{% block title %}Musik – Welle Süd-West{% endblock %}
+
+{% block content %}
+
+  <section class="page-hero">
+    <div class="wrap">
+      <span class="eyebrow">Unsere Musik</span>
+      <h1>Pop, wie er sich richtig anfühlt.</h1>
+      <p>Wir mischen aktuelle Charts mit den Songs, die man einfach mitsingen kann – deutsch, international, immer mit guter Laune.</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="music-wrap">
+        <div class="chip-cloud">
+          <span class="chip on">Deutschpop</span>
+          <span class="chip on">Charts International</span>
+          <span class="chip">90er Gute-Laune</span>
+          <span class="chip on">Sommerhits</span>
+          <span class="chip">Nu-Disco</span>
+          <span class="chip">Wohlfühl-Balladen</span>
+          <span class="chip on">Neuvorstellungen</span>
+        </div>
+        <div class="mix-meter">
+          <div class="meter-row">
+            <div class="labels"><span>Aktuelle Charts</span><span>45%</span></div>
+            <div class="meter-track"><div class="meter-fill" style="width:45%"></div></div>
+          </div>
+          <div class="meter-row">
+            <div class="labels"><span>Popklassiker</span><span>30%</span></div>
+            <div class="meter-track"><div class="meter-fill" style="width:30%; background:var(--berry);"></div></div>
+          </div>
+          <div class="meter-row">
+            <div class="labels"><span>Neuentdeckungen</span><span>15%</span></div>
+            <div class="meter-track"><div class="meter-fill" style="width:15%; background:var(--sage);"></div></div>
+          </div>
+          <div class="meter-row">
+            <div class="labels"><span>Regionales & Moderation</span><span>10%</span></div>
+            <div class="meter-track"><div class="meter-fill" style="width:10%; background:var(--dusk-2);"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="np-widget">
+        <div class="bars" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+        <div class="np-text">
+          <span>Läuft gerade</span>
+          <span data-nowplaying>Welle Süd-West live</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+{% endblock %}

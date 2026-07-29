@@ -1,0 +1,35 @@
+{% extends 'radio/base.html' %}
+
+{% block title %}Programm – Welle Süd-West{% endblock %}
+
+{% block content %}
+
+  <section class="page-hero">
+    <div class="wrap">
+      <span class="eyebrow">Programm</span>
+      <h1>Der Sendeplan im Überblick.</h1>
+      <p>Von der ersten Tasse Kaffee bis zum Nachtlicht – so klingt dein Tag mit Welle Süd-West.</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="shows-grid">
+        {% for show in shows %}
+        <div class="show-card">
+          <span class="show-time">{{ show.zeitraum }}</span>
+          <h3>{{ show.titel }}</h3>
+          <p>{{ show.beschreibung }}</p>
+        </div>
+        {% empty %}
+        <div class="show-card">
+          <span class="show-time">Noch leer</span>
+          <h3>Noch keine Sendungen angelegt</h3>
+          <p>Führe <code>python manage.py seed_data</code> aus oder lege Sendungen im Admin-Bereich an.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+{% endblock %}

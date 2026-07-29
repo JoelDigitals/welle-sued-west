@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Welle Süd-West – Deine gute Laune für den Südwesten{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'radio/css/style.css' %}">
+</head>
+<body>
+
+  <!-- Sticky Player-Leiste, auf jeder Seite sichtbar -->
+  <header class="playerbar">
+    <div class="playerbar-inner">
+      <a class="brand" href="{% url 'radio:home' %}">Welle<span class="dot">·</span>Süd-West</a>
+      <div class="player-controls">
+        <div class="now-track">
+          <span>Läuft gerade</span>
+          <span data-nowplaying>Welle Süd-West live</span>
+        </div>
+        <div class="bars" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+        <a class="live-pill" href="{% url 'radio:live' %}">● Live hören</a>
+      </div>
+    </div>
+  </header>
+
+  <nav class="sitenav">
+    <div class="sitenav-inner">
+      <a href="{% url 'radio:home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">Start</a>
+      <a href="{% url 'radio:programm' %}" class="{% if request.resolver_match.url_name == 'programm' %}active{% endif %}">Programm</a>
+      <a href="{% url 'radio:musik' %}" class="{% if request.resolver_match.url_name == 'musik' %}active{% endif %}">Musik</a>
+      <a href="{% url 'radio:empfang' %}" class="{% if request.resolver_match.url_name == 'empfang' %}active{% endif %}">Empfang</a>
+      <a href="{% url 'radio:live' %}" class="{% if request.resolver_match.url_name == 'live' %}active{% endif %}">Live hören</a>
+      <a href="{% url 'radio:ueber_uns' %}" class="{% if request.resolver_match.url_name == 'ueber_uns' %}active{% endif %}">Über uns</a>
+      <a href="{% url 'radio:kontakt' %}" class="{% if request.resolver_match.url_name == 'kontakt' %}active{% endif %}">Kontakt</a>
+    </div>
+  </nav>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="footer-grid">
+        <div style="max-width:280px;">
+          <div class="brand" style="font-family:'Fraunces',serif; font-weight:700; font-size:18px; margin-bottom:12px;">Welle<span class="dot" style="color:var(--sun);">·</span>Süd-West</div>
+          <p style="margin:0; opacity:.8;">Der Popsender für den Südwesten. Gute Laune, gute Musik, jeden Tag.</p>
+        </div>
+        <nav>
+          <h3>Programm</h3>
+          <a href="{% url 'radio:programm' %}">Sendeplan</a>
+          <a href="{% url 'radio:musik' %}">Unsere Musik</a>
+          <a href="{% url 'radio:empfang' %}">Empfang & Frequenzen</a>
+        </nav>
+        <nav>
+          <h3>Sender</h3>
+          <a href="{% url 'radio:live' %}">Live hören</a>
+          <a href="{% url 'radio:ueber_uns' %}">Über uns</a>
+          <a href="{% url 'radio:kontakt' %}">Kontakt</a>
+        </nav>
+        <nav>
+          <h3>Rechtliches</h3>
+          <a href="{% url 'radio:impressum' %}">Impressum</a>
+          <a href="{% url 'radio:datenschutz' %}">Datenschutz</a>
+        </nav>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Welle Süd-West</span>
+        <span>Gemacht mit Django</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{% static 'radio/js/nowplaying.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

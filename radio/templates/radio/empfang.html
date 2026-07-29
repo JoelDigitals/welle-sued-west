@@ -1,0 +1,36 @@
+{% extends 'radio/base.html' %}
+
+{% block title %}Empfang – Welle Süd-West{% endblock %}
+
+{% block content %}
+
+  <section class="page-hero">
+    <div class="wrap">
+      <span class="eyebrow">Empfang</span>
+      <h1>So findest du uns.</h1>
+      <p>Ob im Auto, in der Küche oder unterwegs – Welle Süd-West ist überall im Südwesten mit dabei.</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <table class="freq-table">
+        <thead>
+          <tr><th>Ort</th><th>Frequenz / Kanal</th><th>Empfangsart</th></tr>
+        </thead>
+        <tbody>
+          {% for f in frequencies %}
+          <tr>
+            <td>{{ f.ort }}</td>
+            <td class="num">{{ f.frequenz }}</td>
+            <td>{{ f.empfangsart }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="3">Noch keine Empfangswege angelegt. Führe <code>python manage.py seed_data</code> aus.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'radio/base.html' %}
+
+{% block title %}Live hören – Welle Süd-West{% endblock %}
+
+{% block content %}
+
+  <section class="page-hero">
+    <div class="wrap">
+      <span class="eyebrow">Live hören</span>
+      <h1>Welle Süd-West – live und in voller Länge.</h1>
+      <p>Hör direkt hier im Browser rein, nimm den Stream mit in deine Radio-App oder VLC, oder binde uns technisch in dein eigenes Netz ein.</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+
+      <iframe src="{{ player_embed_url }}" width="100%" height="160" frameborder="0" allow="autoplay" title="Welle Südwest Webplayer" loading="lazy" style="border-radius:16px; border:1px solid var(--line);"></iframe>
+
+      <div class="np-widget">
+        <div class="bars" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+        <div class="np-text">
+          <span>Läuft gerade</span>
+          <span data-nowplaying>Welle Süd-West live</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+{% endblock %}
