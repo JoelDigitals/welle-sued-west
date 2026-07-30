@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 
-from .forms import ContactForm
+from .forms import ContactForm, HotlineForm, WerbungForm
 from .models import FrequencyEntry, Show
 
 logger = logging.getLogger(__name__)
@@ -46,6 +46,78 @@ def live(request):
     return render(request, 'radio/live.html', context)
 
 
+def _submit_hotline_report(payload):
+    """Reicht eine Meldung an die Hörer-Hotline des Studios weiter (POST /api/public/hotline).
+    Gibt (ok, fehlermeldung) zurück – wirft nie, damit ein nicht erreichbares Studio nie den
+    Formular-Erfolg auf dieser Seite verhindert."""
+    try:
+        response = requests.post(settings.RADIO_HOTLINE_API_URL, json=payload, timeout=5)
+        if response.status_code >= 400:
+            try:
+                detail = response.json().get('error')
+            except ValueError:
+                detail = None
+            return False, detail or 'Die Meldung konnte nicht angenommen werden.'
+        return True, None
+    except requests.RequestException as exc:
+        logger.warning('Hotline-Übermittlung fehlgeschlagen: %s', exc)
+        return False, 'Das Studio ist gerade nicht erreichbar. Bitte versuche es später erneut.'
+
+
+def hotline(request):
+    if request.method == 'POST':
+        form = HotlineForm(request.POST)
+        if form.is_valid():
+            ok, error = _submit_hotline_report(form.cleaned_data)
+            if ok:
+                messages.success(
+                    request,
+                    'Danke! Deine Meldung ist direkt im Studio eingegangen.'
+                )
+                return redirect('radio:hotline')
+            messages.error(request, error)
+    else:
+        form = HotlineForm(initial={'region': 'Saarland'})
+
+    return render(request, 'radio/hotline.html', {'form': form})
+
+
+def werbung(request):
+    if request.method == 'POST':
+        form = WerbungForm(request.POST)
+        if form.is_valid():
+            payload = {
+                'advertiser': form.cleaned_data['advertiser'],
+                'contact': form.cleaned_data['contact'],
+                'text': form.cleaned_data['text'],
+                'perHour': form.cleaned_data['per_hour'],
+            }
+            try:
+                response = requests.post(settings.RADIO_AD_REQUESTS_API_URL, json=payload, timeout=5)
+                if response.status_code >= 400:
+                    try:
+                        detail = response.json().get('error')
+                    except ValueError:
+                        detail = None
+                    messages.error(request, detail or 'Die Bewerbung konnte nicht angenommen werden.')
+                else:
+                    messages.success(
+                        request,
+                        'Danke! Ihre Bewerbung liegt der Redaktion im Studio zur Prüfung vor.'
+                    )
+                    return redirect('radio:werbung')
+            except requests.RequestException as exc:
+                logger.warning('Werbe-Bewerbung fehlgeschlagen: %s', exc)
+                messages.error(
+                    request,
+                    'Das Studio ist gerade nicht erreichbar. Bitte versuche es später erneut.'
+                )
+    else:
+        form = WerbungForm()
+
+    return render(request, 'radio/werbung.html', {'form': form})
+
+
 def ueber_uns(request):
     return render(request, 'radio/ueber_uns.html')
 
@@ -62,7 +134,19 @@ def kontakt(request):
     if request.method == 'POST':
         form = ContactForm(request.POST)
         if form.is_valid():
-            form.save()
+            nachricht = form.save()
+            # Zusätzlich zur lokalen Speicherung (Admin-Bereich) auch ans Studio weiterreichen,
+            # damit Kontaktnachrichten nicht in einem separaten System untergehen, das niemand
+            # checkt. Bewusst kein eigener Hotline-Typ nötig - 'sonstiges' ist dafür da.
+            _submit_hotline_report({
+                'type': 'sonstiges',
+                'region': 'Saarland',
+                'place': '',
+                'road': '',
+                'message': f'[Kontaktformular] {nachricht.nachricht}'[:400],
+                'caller': nachricht.name,
+                'contact': nachricht.email,
+            })
             messages.success(
                 request,
                 'Danke für deine Nachricht! Wir melden uns so schnell wie möglich.'

@@ -34,6 +34,8 @@
       <a href="{% url 'radio:musik' %}" class="{% if request.resolver_match.url_name == 'musik' %}active{% endif %}">Musik</a>
       <a href="{% url 'radio:empfang' %}" class="{% if request.resolver_match.url_name == 'empfang' %}active{% endif %}">Empfang</a>
       <a href="{% url 'radio:live' %}" class="{% if request.resolver_match.url_name == 'live' %}active{% endif %}">Live hören</a>
+      <a href="{% url 'radio:hotline' %}" class="{% if request.resolver_match.url_name == 'hotline' %}active{% endif %}">Hotline</a>
+      <a href="{% url 'radio:werbung' %}" class="{% if request.resolver_match.url_name == 'werbung' %}active{% endif %}">Werbung</a>
       <a href="{% url 'radio:ueber_uns' %}" class="{% if request.resolver_match.url_name == 'ueber_uns' %}active{% endif %}">Über uns</a>
       <a href="{% url 'radio:kontakt' %}" class="{% if request.resolver_match.url_name == 'kontakt' %}active{% endif %}">Kontakt</a>
     </div>
@@ -59,6 +61,8 @@
         <nav>
           <h3>Sender</h3>
           <a href="{% url 'radio:live' %}">Live hören</a>
+          <a href="{% url 'radio:hotline' %}">Hörer-Hotline</a>
+          <a href="{% url 'radio:werbung' %}">Werbung schalten</a>
           <a href="{% url 'radio:ueber_uns' %}">Über uns</a>
           <a href="{% url 'radio:kontakt' %}">Kontakt</a>
         </nav>

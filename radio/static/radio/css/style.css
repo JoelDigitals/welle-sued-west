@@ -88,10 +88,18 @@ img,svg{display:block; max-width:100%;}
 @keyframes eq{0%,100%{transform:scaleY(0.4);} 50%{transform:scaleY(1);}}
 
 /* ---------- Site nav ---------- */
-.sitenav{background:var(--cream-2); border-bottom:1px solid var(--line);}
+.sitenav{background:var(--cream-2); border-bottom:1px solid var(--line); position:relative;}
 .sitenav-inner{
   max-width:1120px; margin:0 auto; padding:0 28px;
   display:flex; gap:26px; overflow-x:auto;
+}
+@media (max-width:860px){
+  /* Zeigt an, dass die Nav horizontal weitergeht, wenn nicht alle Links passen. */
+  .sitenav::after{
+    content:""; position:absolute; top:0; right:0; bottom:0; width:32px;
+    background:linear-gradient(90deg, transparent, var(--cream-2) 75%);
+    pointer-events:none;
+  }
 }
 .sitenav a{
   padding:13px 0; font-size:14.5px; font-weight:500; text-decoration:none;
@@ -196,8 +204,8 @@ section.block{padding:88px 0;}
   letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft);
   padding:0 0 12px; border-bottom:1.5px solid var(--ink); font-weight:400;
 }
-.freq-table td{padding:16px 0; border-bottom:1px solid var(--line); font-size:16px;}
-.freq-table td.num{font-family:'Space Mono', monospace; color:var(--berry); font-weight:700;}
+.freq-table td{padding:16px 0; border-bottom:1px solid var(--line); font-size:16px; overflow-wrap:anywhere;}
+.freq-table td.num{font-family:'Space Mono', monospace; color:var(--berry); font-weight:700; overflow-wrap:anywhere;}
 .freq-table tr:last-child td{border-bottom:none;}
 
 /* ---------- Technik / Code ---------- */
@@ -247,6 +255,7 @@ code.endpoint, .endpoint-box{
 .errorlist{list-style:none; margin:6px 0 0; padding:0; color:var(--berry-dark); font-size:13px;}
 .alert{padding:16px 20px; border-radius:12px; margin-bottom:24px; font-size:14.5px; font-weight:500;}
 .alert-success{background:rgba(124,143,107,0.18); color:#3f5233; border:1px solid rgba(124,143,107,0.4);}
+.alert-error{background:rgba(166,67,90,0.14); color:var(--berry-dark); border:1px solid rgba(166,67,90,0.4);}
 .contact-info h3{font-size:20px; margin-bottom:10px;}
 .contact-info p{color:var(--ink-soft); margin:0 0 8px;}
 
@@ -279,4 +288,12 @@ footer a:hover{opacity:1; text-decoration:underline;}
 @media (max-width:520px){
   .wrap{padding:0 20px;}
   section.block{padding:64px 0;}
+
+  /* Sticky Player-Leiste: now-track & Equalizer weichen, damit der
+     Live-Button auf schmalen Phones (ab 320px) nicht abgeschnitten wird. */
+  .playerbar-inner{padding:0 16px; gap:10px;}
+  .brand{font-size:15px; gap:6px;}
+  .player-controls{gap:10px;}
+  .player-controls .now-track,
+  .player-controls .bars{display:none;}
 }
