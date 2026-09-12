@@ -39,6 +39,7 @@ RADIO_HOTLINE_API_URL = f'{RADIO_STUDIO_BASE_URL}/api/public/hotline'
 RADIO_AD_REQUESTS_API_URL = f'{RADIO_STUDIO_BASE_URL}/api/public/ad-requests'
 RADIO_TRAFFIC_API_URL = f'{RADIO_STUDIO_BASE_URL}/api/public/traffic-overview'
 RADIO_NEWS_API_URL = f'{RADIO_STUDIO_BASE_URL}/api/public/news-page'
+RADIO_LISTENER_STATS_API_URL = f'{RADIO_STUDIO_BASE_URL}/api/public/listener-stats'
 
 # --- Apps ---------------------------------------------------------------
 INSTALLED_APPS = [

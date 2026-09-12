@@ -25,6 +25,13 @@
         </div>
       </div>
 
+      {% if listener_stats %}
+      <div class="chip-cloud" style="margin-top:18px;">
+        <span class="chip">● {{ listener_stats.concurrent }} gerade live dabei</span>
+        <span class="chip">{{ listener_stats.playsToday }} Hörer heute gestartet</span>
+      </div>
+      {% endif %}
+
     </div>
   </section>
 
