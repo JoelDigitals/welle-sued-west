@@ -21,8 +21,9 @@
       <h2 class="traffic-heading">Staus & Sperrungen</h2>
       <div class="traffic-list">
         {% for item in traffic %}
-        <div class="traffic-card">
+        <div class="traffic-card {% if item.urgent %}traffic-card-urgent{% endif %}">
           <div class="traffic-card-head">
+            {% include 'radio/_traffic_category_badge.html' with category=item.category %}
             <span class="chip">{{ item.region }}</span>
             {% if item.road %}<span class="show-time">{{ item.road }}</span>{% endif %}
           </div>
@@ -42,8 +43,9 @@
       <p class="traffic-hint">Verkehrsmeldungen, die uns Hörerinnen und Hörer direkt gemeldet haben – dieselben, die auch im Programm laufen.</p>
       <div class="traffic-list">
         {% for item in hotline_traffic %}
-        <div class="traffic-card">
+        <div class="traffic-card {% if item.urgent %}traffic-card-urgent{% endif %}">
           <div class="traffic-card-head">
+            {% include 'radio/_traffic_category_badge.html' with category=item.category %}
             <span class="chip">{{ item.region }}</span>
             {% if item.place or item.road %}<span class="show-time">{{ item.place|default:item.road }}</span>{% endif %}
           </div>

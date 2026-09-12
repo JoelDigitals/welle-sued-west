@@ -1,0 +1,9 @@
+{% if category == 'unfall' %}
+  <span class="traffic-badge traffic-badge-urgent">⚠ Unfall</span>
+{% elif category == 'sperrung' %}
+  <span class="traffic-badge traffic-badge-urgent">⛔ Sperrung</span>
+{% elif category == 'baustelle' %}
+  <span class="traffic-badge traffic-badge-baustelle">🚧 Baustelle</span>
+{% elif category == 'stau' %}
+  <span class="traffic-badge">Stau</span>
+{% endif %}
