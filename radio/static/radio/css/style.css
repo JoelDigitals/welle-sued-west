@@ -222,6 +222,13 @@ section.block{padding:88px 0;}
 .traffic-empty{color:var(--ink-soft); font-size:15px;}
 
 /* ---------- Nachrichten ---------- */
+.news-search{display:flex; align-items:center; gap:10px; margin-bottom:24px; flex-wrap:wrap;}
+.news-search input[type="search"]{
+  flex:1 1 260px; padding:11px 16px; border-radius:100px; border:1.5px solid var(--line);
+  background:var(--cream); font-family:'Work Sans',sans-serif; font-size:14.5px; color:var(--ink);
+}
+.news-search input[type="search"]:focus{border-color:var(--berry); outline:none;}
+.news-search-clear{font-size:13px; color:var(--ink-soft); text-decoration:underline; white-space:nowrap;}
 .news-grid{display:grid; grid-template-columns:repeat(2, 1fr); gap:18px; margin-bottom:12px;}
 .news-card{
   background:var(--cream-2); border:1px solid var(--line); border-radius:16px;

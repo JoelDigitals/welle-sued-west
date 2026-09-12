@@ -29,22 +29,30 @@ def news_slug(item):
     return f'{base}-{digest}'
 
 
-def _fetch_news(page=1, page_size=NEWS_PAGE_SIZE):
+def _fetch_news(page=1, page_size=NEWS_PAGE_SIZE, query=None):
     """Ruft eine Seite der dauerhaft gespeicherten Nachrichtenartikel vom Studio ab (dieselben
-    KI-Artikel wie in /nachrichten dort, nach Aktualität sortiert). Gibt (items, totalPages,
-    fehlermeldung) zurück - wirft nie."""
+    KI-Artikel wie in /nachrichten dort, nach Aktualität sortiert, optional durchsucht). Gibt
+    (items, totalPages, fehlermeldung) zurück - wirft nie."""
+    params = {'page': page, 'pageSize': page_size}
+    if query:
+        params['q'] = query
     try:
-        response = requests.get(
-            settings.RADIO_NEWS_API_URL,
-            params={'page': page, 'pageSize': page_size},
-            timeout=5,
-        )
+        response = requests.get(settings.RADIO_NEWS_API_URL, params=params, timeout=5)
         response.raise_for_status()
         data = response.json()
         return data.get('items', []), data.get('totalPages', 1), None
     except (requests.RequestException, ValueError) as exc:
         logger.warning('Nachrichten-Abruf fehlgeschlagen: %s', exc)
         return [], 1, 'Die aktuellen Nachrichten sind gerade nicht erreichbar. Bitte versuche es gleich erneut.'
+
+
+def _excerpt_of(article):
+    """Der erste vollständige Absatz statt einer wortgenauen Abschneidung mitten im Satz - liest
+    sich als Vorschau natürlicher, vor allem sobald die Artikel wieder mehrere Absätze haben."""
+    for paragraph in article.split('\n'):
+        if paragraph.strip():
+            return paragraph.strip()
+    return article
 
 
 # --- Öffentliche Seiten ---------------------------------------------------
@@ -56,6 +64,7 @@ def home(request):
     news_items, _, _ = _fetch_news(page=1, page_size=4)
     for item in news_items:
         item['slug'] = news_slug(item)
+        item['excerpt'] = _excerpt_of(item['article'])
 
     context = {
         'shows': Show.objects.all()[:3],
@@ -115,17 +124,19 @@ def verkehr(request):
 
 def nachrichten(request):
     """Nachrichtenübersicht mit ausführlichen, von der KI im Studio geschriebenen Artikeln - nach
-    Aktualität sortiert (neueste zuerst) und paginiert, wie auf der /nachrichten-Seite im Studio
-    selbst. Artikel bleiben dauerhaft erreichbar, auch wenn die Ursprungsmeldung längst aus dem
-    Live-Feed gerutscht ist."""
+    Aktualität sortiert (neueste zuerst), durchsuchbar und paginiert, wie auf der
+    /nachrichten-Seite im Studio selbst. Artikel bleiben dauerhaft erreichbar, auch wenn die
+    Ursprungsmeldung längst aus dem Live-Feed gerutscht ist."""
     try:
         page = max(1, int(request.GET.get('page', 1)))
     except ValueError:
         page = 1
+    query = request.GET.get('q', '').strip()
 
-    items, total_pages, error = _fetch_news(page=page)
+    items, total_pages, error = _fetch_news(page=page, query=query or None)
     for item in items:
         item['slug'] = news_slug(item)
+        item['excerpt'] = _excerpt_of(item['article'])
 
     return render(request, 'radio/nachrichten.html', {
         'items': items,
@@ -135,6 +146,7 @@ def nachrichten(request):
         'total_pages': total_pages,
         'prev_page': page - 1 if page > 1 else None,
         'next_page': page + 1 if page < total_pages else None,
+        'query': query,
     })
 
 

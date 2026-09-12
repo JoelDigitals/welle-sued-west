@@ -29,12 +29,20 @@
 
   <section class="block">
     <div class="wrap">
+      <form class="news-search" method="get" role="search">
+        <input type="search" name="q" value="{{ query }}" placeholder="Nachrichten durchsuchen …" aria-label="Nachrichten durchsuchen">
+        <button type="submit" class="btn btn-dark">Suchen</button>
+        {% if query %}<a class="news-search-clear" href="{% url 'radio:nachrichten' %}">Suche zurücksetzen</a>{% endif %}
+      </form>
+
       {% if error %}
         <div class="alert alert-error">{{ error }}</div>
       {% endif %}
 
       {% if not has_items and not error %}
-        <p class="traffic-empty">Aktuell liegen keine Meldungen vor.</p>
+        <p class="traffic-empty">
+          {% if query %}Keine Nachrichten zu „{{ query }}“ gefunden.{% else %}Aktuell liegen keine Meldungen vor.{% endif %}
+        </p>
       {% endif %}
 
       <div class="news-grid">
@@ -45,7 +53,7 @@
             {% if item.publishedAt %}<time class="show-time" datetime="{{ item.publishedAt }}">{{ item.publishedAt }}</time>{% endif %}
           </div>
           <h3><a href="{% url 'radio:nachrichten_detail' item.slug %}">{{ item.headline }}</a></h3>
-          <p>{{ item.article|truncatewords:32 }}</p>
+          <p>{{ item.excerpt }}</p>
           <a class="news-more" href="{% url 'radio:nachrichten_detail' item.slug %}">Ganzen Artikel lesen →</a>
         </article>
         {% endfor %}
@@ -54,13 +62,13 @@
       {% if total_pages > 1 %}
       <nav class="news-pagination" aria-label="Seiten">
         {% if prev_page %}
-          <a href="?page={{ prev_page }}">← Neuer</a>
+          <a href="?page={{ prev_page }}{% if query %}&q={{ query|urlencode }}{% endif %}">← Neuer</a>
         {% else %}
           <span class="disabled">← Neuer</span>
         {% endif %}
         <span class="news-pagination-status">Seite {{ page }} von {{ total_pages }}</span>
         {% if next_page %}
-          <a href="?page={{ next_page }}">Älter →</a>
+          <a href="?page={{ next_page }}{% if query %}&q={{ query|urlencode }}{% endif %}">Älter →</a>
         {% else %}
           <span class="disabled">Älter →</span>
         {% endif %}
