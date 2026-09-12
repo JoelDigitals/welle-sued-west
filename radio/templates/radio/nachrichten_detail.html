@@ -1,0 +1,81 @@
+{% extends 'radio/base.html' %}
+
+{% block title %}{% if article %}{{ article.headline }} | Welle Süd-West{% else %}Nachrichten nicht erreichbar | Welle Süd-West{% endif %}{% endblock %}
+{% block meta_description %}{% if article %}{{ article.article|truncatewords:28 }}{% else %}Die aktuellen Nachrichten sind gerade nicht erreichbar.{% endif %}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_title %}{% if article %}{{ article.headline }}{% else %}Nachrichten nicht erreichbar{% endif %}{% endblock %}
+{% block og_description %}{% if article %}{{ article.article|truncatewords:28 }}{% endif %}{% endblock %}
+
+{% block extra_head %}
+{% if article %}
+<meta property="article:section" content="{{ article.region }}">
+{% if article.publishedAt %}<meta property="article:published_time" content="{{ article.publishedAt }}">{% endif %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "headline": "{{ article.headline|escapejs }}",
+  "articleSection": "{{ article.region|escapejs }}",
+  {% if article.publishedAt %}"datePublished": "{{ article.publishedAt|escapejs }}",{% endif %}
+  "author": {"@type": "Organization", "name": "Welle Süd-West Redaktion"},
+  "publisher": {"@type": "Organization", "name": "Welle Süd-West"},
+  "isBasedOn": {% if article.link %}"{{ article.link|escapejs }}"{% else %}null{% endif %},
+  "mainEntityOfPage": {"@type": "WebPage", "@id": "{{ request.build_absolute_uri|escapejs }}"}
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "Nachrichten", "item": "{{ request.scheme }}://{{ request.get_host }}{% url 'radio:nachrichten' %}"},
+    {"@type": "ListItem", "position": 2, "name": "{{ article.headline|escapejs }}", "item": "{{ request.build_absolute_uri|escapejs }}"}
+  ]
+}
+</script>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+  {% if article %}
+  <section class="page-hero">
+    <div class="wrap">
+      <nav aria-label="Brotkrumen" style="margin-bottom:14px;">
+        <a href="{% url 'radio:nachrichten' %}" style="color:var(--sun-soft); font-size:13.5px; text-decoration:none;">← Alle Nachrichten</a>
+      </nav>
+      <span class="eyebrow">{{ article.region }}</span>
+      <h1>{{ article.headline }}</h1>
+      {% if article.publishedAt %}<p style="margin-top:8px; font-size:14px;"><time datetime="{{ article.publishedAt }}">{{ article.publishedAt }}</time></p>{% endif %}
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap" style="max-width:760px;">
+      <article class="legal-content">
+        {% for p in paragraphs %}
+          <p>{{ p }}</p>
+        {% endfor %}
+      </article>
+      <p class="traffic-hint" style="margin-top:28px;">
+        Quelle: {{ article.source }}
+        {% if article.link %} · <a href="{{ article.link }}" target="_blank" rel="noopener noreferrer" style="color:var(--berry); font-weight:600;">Originalartikel</a>{% endif %}
+      </p>
+    </div>
+  </section>
+  {% else %}
+  <section class="page-hero">
+    <div class="wrap">
+      <span class="eyebrow">Nachrichten</span>
+      <h1>Gerade nicht erreichbar.</h1>
+    </div>
+  </section>
+  <section class="block">
+    <div class="wrap">
+      <div class="alert alert-error">{{ error }}</div>
+      <p><a href="{% url 'radio:nachrichten' %}" style="color:var(--berry); font-weight:600;">Zurück zur Übersicht</a></p>
+    </div>
+  </section>
+  {% endif %}
+
+{% endblock %}

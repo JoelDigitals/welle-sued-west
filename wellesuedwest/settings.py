@@ -38,6 +38,7 @@ RADIO_LIVE_STREAM_URL = f'{RADIO_STUDIO_BASE_URL}/live-stream'
 RADIO_HOTLINE_API_URL = f'{RADIO_STUDIO_BASE_URL}/api/public/hotline'
 RADIO_AD_REQUESTS_API_URL = f'{RADIO_STUDIO_BASE_URL}/api/public/ad-requests'
 RADIO_TRAFFIC_API_URL = f'{RADIO_STUDIO_BASE_URL}/api/public/traffic-overview'
+RADIO_NEWS_API_URL = f'{RADIO_STUDIO_BASE_URL}/api/public/news-page'
 
 # --- Apps ---------------------------------------------------------------
 INSTALLED_APPS = [
@@ -47,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sitemaps',
 
     'radio',
 ]

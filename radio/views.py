@@ -1,15 +1,40 @@
+import hashlib
 import logging
 
 import requests
 from django.conf import settings
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import redirect, render
+from django.utils.text import slugify
 
 from .forms import ContactForm, HotlineForm, WerbungForm
 from .models import FrequencyEntry, Show
 
 logger = logging.getLogger(__name__)
+
+NEWS_REGION_ORDER = ['Saarland', 'Rheinland-Pfalz', 'Deutschland', 'Welt']
+
+
+def news_slug(item):
+    """Baut eine lesbare, stabile URL aus der (ansonsten wenig aussagekräftigen) Artikel-ID des
+    Studios - gut für SEO/GEO, da die URL selbst schon das Thema nennt. Der Hash-Suffix hält die
+    Slugs eindeutig, falls zwei Schlagzeilen sich sehr ähneln."""
+    digest = hashlib.sha1(item['id'].encode('utf-8')).hexdigest()[:8]
+    base = slugify(item['headline'])[:70] or 'artikel'
+    return f'{base}-{digest}'
+
+
+def _fetch_news():
+    """Ruft die Nachrichten-Snapshot-API des Studios ab (dieselben KI-Artikel wie in
+    /nachrichten dort). Gibt (items, fehlermeldung) zurück - wirft nie."""
+    try:
+        response = requests.get(settings.RADIO_NEWS_API_URL, timeout=5)
+        response.raise_for_status()
+        return response.json().get('items', []), None
+    except (requests.RequestException, ValueError) as exc:
+        logger.warning('Nachrichten-Abruf fehlgeschlagen: %s', exc)
+        return [], 'Die aktuellen Nachrichten sind gerade nicht erreichbar. Bitte versuche es gleich erneut.'
 
 
 # --- Öffentliche Seiten ---------------------------------------------------
@@ -65,6 +90,54 @@ def verkehr(request):
         'traffic': traffic,
         'blitzer': blitzer,
         'error': error,
+    })
+
+
+def nachrichten(request):
+    """Nachrichtenübersicht mit ausführlichen, von der KI im Studio geschriebenen Artikeln -
+    gruppiert nach Region, wie auf der /nachrichten-Seite im Studio selbst."""
+    items, error = _fetch_news()
+    for item in items:
+        item['slug'] = news_slug(item)
+
+    by_region = {region: [] for region in NEWS_REGION_ORDER}
+    for item in items:
+        by_region.setdefault(item['region'], []).append(item)
+    grouped = [
+        {'region': region, 'items': by_region[region]}
+        for region in NEWS_REGION_ORDER
+        if by_region.get(region)
+    ]
+
+    return render(request, 'radio/nachrichten.html', {
+        'grouped': grouped,
+        'has_items': bool(items),
+        'error': error,
+    })
+
+
+def nachrichten_detail(request, slug):
+    """Einzelner Artikel mit eigener URL/eigenen Meta-Daten (SEO: pro Thema eine indexierbare
+    Seite statt nur einer Sammelseite; GEO: strukturierte Daten + klarer Aufbau, damit
+    KI-Suchsysteme den Artikel sauber zitieren können). Da die Artikel nur im Cache des Studios
+    liegen (6h TTL) statt dauerhaft gespeichert zu sein, kann ein Artikel nach einiger Zeit aus
+    der Rotation fallen - dann liefert die Seite bewusst 404 statt eines toten/leeren Artikels."""
+    items, error = _fetch_news()
+
+    article = next((item for item in items if news_slug(item) == slug), None)
+    if article is None:
+        if error:
+            return render(request, 'radio/nachrichten_detail.html', {
+                'article': None,
+                'error': error,
+            }, status=502)
+        raise Http404('Dieser Artikel ist nicht mehr aktuell oder wurde nicht gefunden.')
+
+    paragraphs = [p for p in article['article'].split('\n') if p.strip()]
+    return render(request, 'radio/nachrichten_detail.html', {
+        'article': article,
+        'paragraphs': paragraphs,
+        'error': None,
     })
 
 

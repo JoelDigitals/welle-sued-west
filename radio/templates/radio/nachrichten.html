@@ -1,0 +1,59 @@
+{% extends 'radio/base.html' %}
+
+{% block title %}Nachrichten – Saarland, Rheinland-Pfalz, Deutschland & Welt | Welle Süd-West{% endblock %}
+{% block meta_description %}Aktuelle Nachrichten für Saarland, Rheinland-Pfalz, Deutschland und die Welt – ausführlich zum Nachlesen, von der Redaktion von Welle Süd-West.{% endblock %}
+{% block og_title %}Nachrichten – Welle Süd-West{% endblock %}
+{% block og_description %}Aktuelle Nachrichten für Saarland, Rheinland-Pfalz, Deutschland und die Welt – ausführlich zum Nachlesen.{% endblock %}
+
+{% block extra_head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Nachrichten – Welle Süd-West",
+  "description": "Aktuelle Nachrichten für Saarland, Rheinland-Pfalz, Deutschland und die Welt.",
+  "isPartOf": {"@type": "WebSite", "name": "Welle Süd-West"}
+}
+</script>
+{% endblock %}
+
+{% block content %}
+
+  <section class="page-hero">
+    <div class="wrap">
+      <span class="eyebrow">Nachrichten</span>
+      <h1>Was heute wichtig ist – für dich zusammengefasst.</h1>
+      <p>Saarland, Rheinland-Pfalz, Deutschland und die Welt: ausführliche Artikel, live aus der Redaktion im Sendestudio.</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      {% if error %}
+        <div class="alert alert-error">{{ error }}</div>
+      {% endif %}
+
+      {% if not has_items and not error %}
+        <p class="traffic-empty">Aktuell liegen keine Meldungen vor.</p>
+      {% endif %}
+
+      {% for group in grouped %}
+        <h2 class="traffic-heading" {% if not forloop.first %}style="margin-top:48px;"{% endif %}>{{ group.region }}</h2>
+        <div class="news-grid">
+          {% for item in group.items %}
+          <article class="news-card">
+            <div class="traffic-card-head">
+              <span class="chip">{{ item.region }}</span>
+              {% if item.publishedAt %}<time class="show-time" datetime="{{ item.publishedAt }}">{{ item.publishedAt }}</time>{% endif %}
+            </div>
+            <h3><a href="{% url 'radio:nachrichten_detail' item.slug %}">{{ item.headline }}</a></h3>
+            <p>{{ item.article|truncatewords:32 }}</p>
+            <a class="news-more" href="{% url 'radio:nachrichten_detail' item.slug %}">Ganzen Artikel lesen →</a>
+          </article>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+{% endblock %}
