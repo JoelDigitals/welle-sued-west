@@ -233,8 +233,24 @@ section.block{padding:88px 0;}
 .news-card p{color:var(--ink-soft); font-size:14.5px; margin:0;}
 .news-more{font-size:13.5px; font-weight:600; color:var(--berry); text-decoration:none; margin-top:4px;}
 .news-more:hover{text-decoration:underline;}
+.news-pagination{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-top:8px; padding-top:20px; border-top:1px solid var(--line);
+}
+.news-pagination a, .news-pagination .disabled{
+  font-size:13.5px; font-weight:600; text-decoration:none;
+}
+.news-pagination a{color:var(--berry);}
+.news-pagination a:hover{text-decoration:underline;}
+.news-pagination .disabled{color:var(--ink-soft); opacity:.5;}
+.news-pagination-status{font-size:13px; color:var(--ink-soft); font-family:'Space Mono', monospace;}
+.news-teaser-grid{display:grid; grid-template-columns:repeat(4, 1fr); gap:16px;}
 @media (max-width:860px){
   .news-grid{grid-template-columns:1fr;}
+  .news-teaser-grid{grid-template-columns:1fr 1fr;}
+}
+@media (max-width:520px){
+  .news-teaser-grid{grid-template-columns:1fr;}
 }
 
 /* ---------- Technik / Code ---------- */

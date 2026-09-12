@@ -76,6 +76,30 @@
     </div>
   </section>
 
+  {% if news_items %}
+  <section class="block" style="padding-top:0;">
+    <div class="wrap">
+      <div class="block-head">
+        <span class="eyebrow">Nachrichten</span>
+        <h2>Was gerade wichtig ist.</h2>
+        <p>Saarland, Rheinland-Pfalz, Deutschland und die Welt – ausführlich zum Nachlesen.</p>
+      </div>
+      <div class="news-teaser-grid">
+        {% for item in news_items %}
+        <article class="news-card">
+          <span class="chip">{{ item.region }}</span>
+          <h3><a href="{% url 'radio:nachrichten_detail' item.slug %}">{{ item.headline }}</a></h3>
+          <p>{{ item.article|truncatewords:20 }}</p>
+        </article>
+        {% endfor %}
+      </div>
+      <div style="margin-top:24px;">
+        <a class="btn btn-dark" href="{% url 'radio:nachrichten' %}">Alle Nachrichten</a>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
   <section class="block" style="background:var(--cream-2); padding-top:0; padding-bottom:64px;">
     <div class="wrap">
       <div class="block-head">

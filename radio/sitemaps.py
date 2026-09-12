@@ -28,14 +28,18 @@ class StaticViewSitemap(Sitemap):
 
 
 class NewsSitemap(Sitemap):
-    """Holt die aktuell im Studio-Cache liegenden Artikel zur Sitemap-Generierung - fällt bei
+    """Holt die dauerhaft gespeicherten Artikel des Studios zur Sitemap-Generierung - fällt bei
     nicht erreichbarem Studio auf eine leere Liste zurück statt die ganze Sitemap zu zerschießen."""
     changefreq = 'hourly'
     priority = 0.7
 
     def items(self):
         try:
-            response = requests.get(settings.RADIO_NEWS_API_URL, timeout=5)
+            response = requests.get(
+                settings.RADIO_NEWS_API_URL,
+                params={'page': 1, 'pageSize': 500},
+                timeout=5,
+            )
             response.raise_for_status()
             return response.json().get('items', [])
         except (requests.RequestException, ValueError) as exc:

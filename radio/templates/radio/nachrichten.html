@@ -37,22 +37,35 @@
         <p class="traffic-empty">Aktuell liegen keine Meldungen vor.</p>
       {% endif %}
 
-      {% for group in grouped %}
-        <h2 class="traffic-heading" {% if not forloop.first %}style="margin-top:48px;"{% endif %}>{{ group.region }}</h2>
-        <div class="news-grid">
-          {% for item in group.items %}
-          <article class="news-card">
-            <div class="traffic-card-head">
-              <span class="chip">{{ item.region }}</span>
-              {% if item.publishedAt %}<time class="show-time" datetime="{{ item.publishedAt }}">{{ item.publishedAt }}</time>{% endif %}
-            </div>
-            <h3><a href="{% url 'radio:nachrichten_detail' item.slug %}">{{ item.headline }}</a></h3>
-            <p>{{ item.article|truncatewords:32 }}</p>
-            <a class="news-more" href="{% url 'radio:nachrichten_detail' item.slug %}">Ganzen Artikel lesen →</a>
-          </article>
-          {% endfor %}
-        </div>
-      {% endfor %}
+      <div class="news-grid">
+        {% for item in items %}
+        <article class="news-card">
+          <div class="traffic-card-head">
+            <span class="chip">{{ item.region }}</span>
+            {% if item.publishedAt %}<time class="show-time" datetime="{{ item.publishedAt }}">{{ item.publishedAt }}</time>{% endif %}
+          </div>
+          <h3><a href="{% url 'radio:nachrichten_detail' item.slug %}">{{ item.headline }}</a></h3>
+          <p>{{ item.article|truncatewords:32 }}</p>
+          <a class="news-more" href="{% url 'radio:nachrichten_detail' item.slug %}">Ganzen Artikel lesen →</a>
+        </article>
+        {% endfor %}
+      </div>
+
+      {% if total_pages > 1 %}
+      <nav class="news-pagination" aria-label="Seiten">
+        {% if prev_page %}
+          <a href="?page={{ prev_page }}">← Neuer</a>
+        {% else %}
+          <span class="disabled">← Neuer</span>
+        {% endif %}
+        <span class="news-pagination-status">Seite {{ page }} von {{ total_pages }}</span>
+        {% if next_page %}
+          <a href="?page={{ next_page }}">Älter →</a>
+        {% else %}
+          <span class="disabled">Älter →</span>
+        {% endif %}
+      </nav>
+      {% endif %}
     </div>
   </section>
 

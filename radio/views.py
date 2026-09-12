@@ -13,7 +13,11 @@ from .models import FrequencyEntry, Show
 
 logger = logging.getLogger(__name__)
 
-NEWS_REGION_ORDER = ['Saarland', 'Rheinland-Pfalz', 'Deutschland', 'Welt']
+NEWS_PAGE_SIZE = 16
+# Groß genug, um beim Auflösen einer Detail-URL (Slug) jeden dauerhaft gespeicherten Artikel zu
+# erreichen, statt nur die erste Seite - die Artikel-Liste ist paginiert, ein einzelner Artikel
+# kann also auf einer späteren Seite stehen.
+NEWS_SLUG_SEARCH_SIZE = 500
 
 
 def news_slug(item):
@@ -25,25 +29,39 @@ def news_slug(item):
     return f'{base}-{digest}'
 
 
-def _fetch_news():
-    """Ruft die Nachrichten-Snapshot-API des Studios ab (dieselben KI-Artikel wie in
-    /nachrichten dort). Gibt (items, fehlermeldung) zurück - wirft nie."""
+def _fetch_news(page=1, page_size=NEWS_PAGE_SIZE):
+    """Ruft eine Seite der dauerhaft gespeicherten Nachrichtenartikel vom Studio ab (dieselben
+    KI-Artikel wie in /nachrichten dort, nach Aktualität sortiert). Gibt (items, totalPages,
+    fehlermeldung) zurück - wirft nie."""
     try:
-        response = requests.get(settings.RADIO_NEWS_API_URL, timeout=5)
+        response = requests.get(
+            settings.RADIO_NEWS_API_URL,
+            params={'page': page, 'pageSize': page_size},
+            timeout=5,
+        )
         response.raise_for_status()
-        return response.json().get('items', []), None
+        data = response.json()
+        return data.get('items', []), data.get('totalPages', 1), None
     except (requests.RequestException, ValueError) as exc:
         logger.warning('Nachrichten-Abruf fehlgeschlagen: %s', exc)
-        return [], 'Die aktuellen Nachrichten sind gerade nicht erreichbar. Bitte versuche es gleich erneut.'
+        return [], 1, 'Die aktuellen Nachrichten sind gerade nicht erreichbar. Bitte versuche es gleich erneut.'
 
 
 # --- Öffentliche Seiten ---------------------------------------------------
 
 def home(request):
+    # Kleine Nachrichten-Vorschau auf der Startseite - die Artikel bleiben hier auch dann sichtbar,
+    # wenn die Ursprungsmeldung längst aus dem Live-Feed des Studios gerutscht ist (dauerhaft in
+    # Postgres gespeichert, siehe news-articles-store.ts im Studio).
+    news_items, _, _ = _fetch_news(page=1, page_size=4)
+    for item in news_items:
+        item['slug'] = news_slug(item)
+
     context = {
         'shows': Show.objects.all()[:3],
         'frequencies': FrequencyEntry.objects.all()[:4],
         'player_embed_url': settings.RADIO_PLAYER_EMBED_URL,
+        'news_items': news_items,
     }
     return render(request, 'radio/home.html', context)
 
@@ -96,35 +114,37 @@ def verkehr(request):
 
 
 def nachrichten(request):
-    """Nachrichtenübersicht mit ausführlichen, von der KI im Studio geschriebenen Artikeln -
-    gruppiert nach Region, wie auf der /nachrichten-Seite im Studio selbst."""
-    items, error = _fetch_news()
+    """Nachrichtenübersicht mit ausführlichen, von der KI im Studio geschriebenen Artikeln - nach
+    Aktualität sortiert (neueste zuerst) und paginiert, wie auf der /nachrichten-Seite im Studio
+    selbst. Artikel bleiben dauerhaft erreichbar, auch wenn die Ursprungsmeldung längst aus dem
+    Live-Feed gerutscht ist."""
+    try:
+        page = max(1, int(request.GET.get('page', 1)))
+    except ValueError:
+        page = 1
+
+    items, total_pages, error = _fetch_news(page=page)
     for item in items:
         item['slug'] = news_slug(item)
 
-    by_region = {region: [] for region in NEWS_REGION_ORDER}
-    for item in items:
-        by_region.setdefault(item['region'], []).append(item)
-    grouped = [
-        {'region': region, 'items': by_region[region]}
-        for region in NEWS_REGION_ORDER
-        if by_region.get(region)
-    ]
-
     return render(request, 'radio/nachrichten.html', {
-        'grouped': grouped,
+        'items': items,
         'has_items': bool(items),
         'error': error,
+        'page': page,
+        'total_pages': total_pages,
+        'prev_page': page - 1 if page > 1 else None,
+        'next_page': page + 1 if page < total_pages else None,
     })
 
 
 def nachrichten_detail(request, slug):
     """Einzelner Artikel mit eigener URL/eigenen Meta-Daten (SEO: pro Thema eine indexierbare
     Seite statt nur einer Sammelseite; GEO: strukturierte Daten + klarer Aufbau, damit
-    KI-Suchsysteme den Artikel sauber zitieren können). Da die Artikel nur im Cache des Studios
-    liegen (6h TTL) statt dauerhaft gespeichert zu sein, kann ein Artikel nach einiger Zeit aus
-    der Rotation fallen - dann liefert die Seite bewusst 404 statt eines toten/leeren Artikels."""
-    items, error = _fetch_news()
+    KI-Suchsysteme den Artikel sauber zitieren können). Artikel sind dauerhaft gespeichert
+    (Postgres im Studio), ein 404 hier bedeutet also nur einen falschen/veralteten Link, nicht
+    einen inzwischen verschwundenen Artikel."""
+    items, _, error = _fetch_news(page=1, page_size=NEWS_SLUG_SEARCH_SIZE)
 
     article = next((item for item in items if news_slug(item) == slug), None)
     if article is None:
