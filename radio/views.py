@@ -65,17 +65,10 @@ def empfang(request):
 
 
 def live(request):
-    listener_stats = None
-    try:
-        response = requests.get(settings.RADIO_LISTENER_STATS_API_URL, timeout=5)
-        response.raise_for_status()
-        listener_stats = response.json()
-    except (requests.RequestException, ValueError) as exc:
-        logger.warning('Zuhörer-Statistik-Abruf fehlgeschlagen: %s', exc)
-
+    # Die Hörerzahl wird bewusst NICHT öffentlich gezeigt (solange die Reichweite noch klein ist,
+    # wirkt "0 Hörer" eher abschreckend) - intern sieht das Team sie im Studio-Dashboard.
     context = {
         'player_embed_url': settings.RADIO_PLAYER_EMBED_URL,
-        'listener_stats': listener_stats,
     }
     return render(request, 'radio/live.html', context)
 
