@@ -38,6 +38,24 @@
         {% endfor %}
       </div>
 
+      <h2 class="traffic-heading" style="margin-top:48px;">Aus der Hörer-Hotline</h2>
+      <p class="traffic-hint">Verkehrsmeldungen, die uns Hörerinnen und Hörer direkt gemeldet haben – dieselben, die auch im Programm laufen.</p>
+      <div class="traffic-list">
+        {% for item in hotline_traffic %}
+        <div class="traffic-card">
+          <div class="traffic-card-head">
+            <span class="chip">{{ item.region }}</span>
+            {% if item.place or item.road %}<span class="show-time">{{ item.place|default:item.road }}</span>{% endif %}
+          </div>
+          {% if item.message %}<p>{{ item.message }}</p>{% endif %}
+        </div>
+        {% empty %}
+        {% if not error %}
+        <p class="traffic-empty">Aktuell keine Hörer-Meldungen.</p>
+        {% endif %}
+        {% endfor %}
+      </div>
+
       <h2 class="traffic-heading" style="margin-top:48px;">Blitzer-Meldungen</h2>
       <p class="traffic-hint">Aus unserer Hörer-Hotline, mit Ort bzw. Ortseingang – ohne exakten Punkt, wie im Radio.</p>
       <div class="traffic-list">
@@ -45,7 +63,7 @@
         <div class="traffic-card">
           <div class="traffic-card-head">
             <span class="chip">{{ item.region }}</span>
-            {% if item.road %}<span class="show-time">{{ item.road }}</span>{% endif %}
+            {% if item.place or item.road %}<span class="show-time">{{ item.place|default:item.road }}</span>{% endif %}
           </div>
           {% if item.message %}<p>{{ item.message }}</p>{% endif %}
         </div>

@@ -66,11 +66,19 @@ def home(request):
         item['slug'] = news_slug(item)
         item['excerpt'] = _excerpt_of(item['article'])
 
+    # Kleine Vorschau aus der Hörer-Hotline (Verkehr + Blitzer zusammen, neueste zuerst) - dieselben
+    # Meldungen, die auch im Programm laufen, gehören genauso auf die Startseite wie die News.
+    _, hotline_traffic, blitzer, _ = _fetch_traffic_overview()
+    hotline_items = sorted(
+        hotline_traffic + blitzer, key=lambda h: h.get('createdAt', 0), reverse=True,
+    )[:3]
+
     context = {
         'shows': Show.objects.all()[:3],
         'frequencies': FrequencyEntry.objects.all()[:4],
         'player_embed_url': settings.RADIO_PLAYER_EMBED_URL,
         'news_items': news_items,
+        'hotline_items': hotline_items,
     }
     return render(request, 'radio/home.html', context)
 
@@ -100,23 +108,29 @@ def live(request):
     return render(request, 'radio/live.html', context)
 
 
-def verkehr(request):
-    """Staus/Sperrungen und Blitzer-Meldungen, live vom Studio abgerufen (dieselben Daten wie
-    on air). Wirft nie - ist das Studio gerade nicht erreichbar, zeigt die Seite einen Hinweis
-    statt eines Fehlers."""
-    traffic, blitzer, error = [], [], None
+def _fetch_traffic_overview():
+    """Ruft die Verkehrsübersicht des Studios ab (offizielle Staus/Sperrungen + Hörer-Hotline für
+    Verkehr und Blitzer, dieselben Daten wie on air). Gibt (traffic, hotline_traffic, blitzer,
+    fehlermeldung) zurück - wirft nie."""
     try:
         response = requests.get(settings.RADIO_TRAFFIC_API_URL, timeout=5)
         response.raise_for_status()
         data = response.json()
-        traffic = data.get('traffic', [])
-        blitzer = data.get('blitzer', [])
+        return data.get('traffic', []), data.get('hotlineTraffic', []), data.get('blitzer', []), None
     except (requests.RequestException, ValueError) as exc:
         logger.warning('Verkehrs-Übersicht-Abruf fehlgeschlagen: %s', exc)
-        error = 'Die aktuellen Verkehrsdaten sind gerade nicht erreichbar. Bitte versuche es gleich erneut.'
+        return [], [], [], 'Die aktuellen Verkehrsdaten sind gerade nicht erreichbar. Bitte versuche es gleich erneut.'
+
+
+def verkehr(request):
+    """Staus/Sperrungen, Hörer-Verkehrsmeldungen und Blitzer-Meldungen, live vom Studio abgerufen
+    (dieselben Daten wie on air). Wirft nie - ist das Studio gerade nicht erreichbar, zeigt die
+    Seite einen Hinweis statt eines Fehlers."""
+    traffic, hotline_traffic, blitzer, error = _fetch_traffic_overview()
 
     return render(request, 'radio/verkehr.html', {
         'traffic': traffic,
+        'hotline_traffic': hotline_traffic,
         'blitzer': blitzer,
         'error': error,
     })

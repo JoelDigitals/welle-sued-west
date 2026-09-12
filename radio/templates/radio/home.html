@@ -100,6 +100,32 @@
   </section>
   {% endif %}
 
+  {% if hotline_items %}
+  <section class="block" style="padding-top:0;">
+    <div class="wrap">
+      <div class="block-head">
+        <span class="eyebrow">Hörer-Hotline</span>
+        <h2>Was gerade gemeldet wird.</h2>
+        <p>Verkehr und Blitzer, direkt von Hörerinnen und Hörern – dieselben Meldungen, die auch im Programm laufen.</p>
+      </div>
+      <div class="traffic-list">
+        {% for item in hotline_items %}
+        <div class="traffic-card">
+          <div class="traffic-card-head">
+            <span class="chip">{{ item.region }}</span>
+            {% if item.place or item.road %}<span class="show-time">{{ item.place|default:item.road }}</span>{% endif %}
+          </div>
+          {% if item.message %}<p>{{ item.message }}</p>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      <div style="margin-top:24px;">
+        <a class="btn btn-dark" href="{% url 'radio:verkehr' %}">Alle Meldungen</a>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
   <section class="block" style="background:var(--cream-2); padding-top:0; padding-bottom:64px;">
     <div class="wrap">
       <div class="block-head">
