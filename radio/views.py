@@ -197,7 +197,12 @@ def hotline(request):
     if request.method == 'POST':
         form = HotlineForm(request.POST)
         if form.is_valid():
-            ok, error = _submit_hotline_report(form.cleaned_data)
+            payload = dict(form.cleaned_data)
+            # Bei Blitzer darf die Nachricht leer bleiben (siehe HotlineForm) - das Studio
+            # verlangt aber weiterhin mindestens 3 Zeichen, also hier ein neutraler Platzhalter.
+            if payload['type'] == 'blitzer' and not payload.get('message', '').strip():
+                payload['message'] = 'Blitzer gemeldet.'
+            ok, error = _submit_hotline_report(payload)
             if ok:
                 messages.success(
                     request,

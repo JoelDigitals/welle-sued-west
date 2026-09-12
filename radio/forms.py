@@ -38,8 +38,11 @@ class HotlineForm(forms.Form):
         label='Straße / Autobahn', max_length=40, required=False,
         widget=forms.TextInput(attrs={'class': 'field-input', 'placeholder': 'z. B. A6'}),
     )
+    # Bei Blitzer optional: der Ort allein reicht inzwischen (siehe blitzerOrtPhrase im Studio -
+    # die Nachricht selbst fließt dort gar nicht mehr in die Ansage ein), eine leere Nachricht wird
+    # in der View durch einen Platzhalter ersetzt, bevor sie ans Studio geht.
     message = forms.CharField(
-        label='Nachricht', max_length=400,
+        label='Nachricht', max_length=400, required=False,
         widget=forms.Textarea(attrs={'class': 'field-input', 'rows': 5}),
     )
     caller = forms.CharField(
@@ -55,6 +58,10 @@ class HotlineForm(forms.Form):
         cleaned = super().clean()
         if cleaned.get('type') in ('verkehr', 'blitzer') and len(cleaned.get('place', '')) < 2:
             self.add_error('place', 'Bitte Ort angeben.')
+        # Nur bei Blitzer optional (siehe message-Feld oben) - bei allen anderen Meldungsarten
+        # bleibt eine echte Nachricht Pflicht, sonst gibt es inhaltlich nichts zu melden.
+        if cleaned.get('type') != 'blitzer' and not cleaned.get('message', '').strip():
+            self.add_error('message', 'Bitte eine Nachricht angeben.')
         return cleaned
 
 
