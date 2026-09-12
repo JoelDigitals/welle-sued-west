@@ -1,0 +1,62 @@
+{% extends 'radio/base.html' %}
+
+{% block title %}Verkehr & Blitzer – Welle Süd-West{% endblock %}
+
+{% block content %}
+
+  <section class="page-hero">
+    <div class="wrap">
+      <span class="eyebrow">Verkehr</span>
+      <h1>Staus & Blitzer im Überblick.</h1>
+      <p>Live aus dem Sendestudio – dieselben Meldungen, die du auch im Programm hörst.</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      {% if error %}
+        <div class="alert alert-error">{{ error }}</div>
+      {% endif %}
+
+      <h2 class="traffic-heading">Staus & Sperrungen</h2>
+      <div class="traffic-list">
+        {% for item in traffic %}
+        <div class="traffic-card">
+          <div class="traffic-card-head">
+            <span class="chip">{{ item.region }}</span>
+            {% if item.road %}<span class="show-time">{{ item.road }}</span>{% endif %}
+          </div>
+          <h3>{{ item.headline }}</h3>
+          {% if item.message and item.message != item.headline %}
+            <p>{{ item.message }}</p>
+          {% endif %}
+        </div>
+        {% empty %}
+        {% if not error %}
+        <p class="traffic-empty">Aktuell keine größeren Behinderungen gemeldet.</p>
+        {% endif %}
+        {% endfor %}
+      </div>
+
+      <h2 class="traffic-heading" style="margin-top:48px;">Blitzer-Meldungen</h2>
+      <p class="traffic-hint">Aus unserer Hörer-Hotline, bewusst nur mit Streckenangabe – ohne exakten Ort, wie im Radio.</p>
+      <div class="traffic-list">
+        {% for item in blitzer %}
+        <div class="traffic-card">
+          <div class="traffic-card-head">
+            <span class="chip">{{ item.region }}</span>
+            {% if item.road %}<span class="show-time">{{ item.road }}</span>{% endif %}
+          </div>
+          {% if item.message %}<p>{{ item.message }}</p>{% endif %}
+        </div>
+        {% empty %}
+        {% if not error %}
+        <p class="traffic-empty">Aktuell keine Blitzer-Meldungen.</p>
+        {% endif %}
+        {% endfor %}
+      </div>
+      <p class="traffic-hint" style="margin-top:18px;">Alle Angaben ohne Gewähr. Melde uns Blitzer über unsere <a href="{% url 'radio:hotline' %}" style="color:var(--berry); font-weight:600;">Hörer-Hotline</a>.</p>
+    </div>
+  </section>
+
+{% endblock %}

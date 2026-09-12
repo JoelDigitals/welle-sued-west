@@ -208,6 +208,19 @@ section.block{padding:88px 0;}
 .freq-table td.num{font-family:'Space Mono', monospace; color:var(--berry); font-weight:700; overflow-wrap:anywhere;}
 .freq-table tr:last-child td{border-bottom:none;}
 
+/* ---------- Verkehr ---------- */
+.traffic-heading{font-family:'Fraunces',serif; font-size:24px; margin-bottom:16px;}
+.traffic-hint{color:var(--ink-soft); font-size:14px; margin:0 0 18px;}
+.traffic-list{display:flex; flex-direction:column; gap:14px;}
+.traffic-card{
+  background:var(--cream-2); border:1px solid var(--line); border-radius:16px;
+  padding:20px 24px; display:flex; flex-direction:column; gap:8px;
+}
+.traffic-card-head{display:flex; align-items:center; gap:10px;}
+.traffic-card h3{font-size:17px; margin:0;}
+.traffic-card p{color:var(--ink-soft); font-size:14.5px; margin:0;}
+.traffic-empty{color:var(--ink-soft); font-size:15px;}
+
 /* ---------- Technik / Code ---------- */
 .tech-card{
   background:var(--dusk); color:var(--cream); border-radius:18px; padding:28px 30px; margin-top:14px;

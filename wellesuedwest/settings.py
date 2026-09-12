@@ -37,6 +37,7 @@ RADIO_NOWPLAYING_API_URL = f'{RADIO_STUDIO_BASE_URL}/api/public/nowplaying'
 RADIO_LIVE_STREAM_URL = f'{RADIO_STUDIO_BASE_URL}/live-stream'
 RADIO_HOTLINE_API_URL = f'{RADIO_STUDIO_BASE_URL}/api/public/hotline'
 RADIO_AD_REQUESTS_API_URL = f'{RADIO_STUDIO_BASE_URL}/api/public/ad-requests'
+RADIO_TRAFFIC_API_URL = f'{RADIO_STUDIO_BASE_URL}/api/public/traffic-overview'
 
 # --- Apps ---------------------------------------------------------------
 INSTALLED_APPS = [

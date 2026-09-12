@@ -10,6 +10,7 @@ urlpatterns = [
     path('musik/', views.musik, name='musik'),
     path('empfang/', views.empfang, name='empfang'),
     path('live/', views.live, name='live'),
+    path('verkehr/', views.verkehr, name='verkehr'),
     path('hotline/', views.hotline, name='hotline'),
     path('werbung/', views.werbung, name='werbung'),
     path('ueber-uns/', views.ueber_uns, name='ueber_uns'),

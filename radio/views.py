@@ -46,6 +46,28 @@ def live(request):
     return render(request, 'radio/live.html', context)
 
 
+def verkehr(request):
+    """Staus/Sperrungen und Blitzer-Meldungen, live vom Studio abgerufen (dieselben Daten wie
+    on air). Wirft nie - ist das Studio gerade nicht erreichbar, zeigt die Seite einen Hinweis
+    statt eines Fehlers."""
+    traffic, blitzer, error = [], [], None
+    try:
+        response = requests.get(settings.RADIO_TRAFFIC_API_URL, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        traffic = data.get('traffic', [])
+        blitzer = data.get('blitzer', [])
+    except (requests.RequestException, ValueError) as exc:
+        logger.warning('Verkehrs-Übersicht-Abruf fehlgeschlagen: %s', exc)
+        error = 'Die aktuellen Verkehrsdaten sind gerade nicht erreichbar. Bitte versuche es gleich erneut.'
+
+    return render(request, 'radio/verkehr.html', {
+        'traffic': traffic,
+        'blitzer': blitzer,
+        'error': error,
+    })
+
+
 def _submit_hotline_report(payload):
     """Reicht eine Meldung an die Hörer-Hotline des Studios weiter (POST /api/public/hotline).
     Gibt (ok, fehlermeldung) zurück – wirft nie, damit ein nicht erreichbares Studio nie den
