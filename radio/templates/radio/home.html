@@ -87,6 +87,11 @@
       <div class="news-teaser-grid">
         {% for item in news_items %}
         <article class="news-card">
+          {% if item.imageUrl %}
+            <a href="{% url 'radio:nachrichten_detail' item.slug %}" class="news-card-image">
+              <img src="{{ item.imageUrl }}" alt="" loading="lazy">
+            </a>
+          {% endif %}
           <span class="chip">{{ item.region }}</span>
           <h3><a href="{% url 'radio:nachrichten_detail' item.slug %}">{{ item.headline }}</a></h3>
           <p>{{ item.excerpt }}</p>

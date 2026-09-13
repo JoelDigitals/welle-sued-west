@@ -55,6 +55,21 @@ def _excerpt_of(article):
     return article
 
 
+def _page_window(page, total_pages):
+    """Seitenzahlen mit "…"-Verkürzung bei vielen Seiten - immer Seite 1, die letzte Seite und ein
+    kleines Fenster um die aktuelle Seite. None steht im Template für die "…"-Lücke."""
+    keep = {1, total_pages, page - 1, page, page + 1}
+    keep = sorted(p for p in keep if 1 <= p <= total_pages)
+    out = []
+    prev = None
+    for p in keep:
+        if prev is not None and p - prev > 1:
+            out.append(None)
+        out.append(p)
+        prev = p
+    return out
+
+
 # --- Öffentliche Seiten ---------------------------------------------------
 
 def home(request):
@@ -168,6 +183,7 @@ def nachrichten(request):
         'total_pages': total_pages,
         'prev_page': page - 1 if page > 1 else None,
         'next_page': page + 1 if page < total_pages else None,
+        'page_window': _page_window(page, total_pages),
         'query': query,
     })
 

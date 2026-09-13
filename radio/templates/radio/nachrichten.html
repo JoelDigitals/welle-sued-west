@@ -48,6 +48,11 @@
       <div class="news-grid">
         {% for item in items %}
         <article class="news-card">
+          {% if item.imageUrl %}
+            <a href="{% url 'radio:nachrichten_detail' item.slug %}" class="news-card-image">
+              <img src="{{ item.imageUrl }}" alt="" loading="lazy">
+            </a>
+          {% endif %}
           <div class="traffic-card-head">
             <span class="chip">{{ item.region }}</span>
             {% if item.publishedAt %}<time class="show-time" datetime="{{ item.publishedAt }}">{{ item.publishedAt }}</time>{% endif %}
@@ -66,7 +71,17 @@
         {% else %}
           <span class="disabled">← Neuer</span>
         {% endif %}
-        <span class="news-pagination-status">Seite {{ page }} von {{ total_pages }}</span>
+        <span class="news-pagination-numbers">
+          {% for p in page_window %}
+            {% if p == None %}
+              <span class="news-page-gap">…</span>
+            {% elif p == page %}
+              <span class="news-page-num active">{{ p }}</span>
+            {% else %}
+              <a class="news-page-num" href="?page={{ p }}{% if query %}&q={{ query|urlencode }}{% endif %}">{{ p }}</a>
+            {% endif %}
+          {% endfor %}
+        </span>
         {% if next_page %}
           <a href="?page={{ next_page }}{% if query %}&q={{ query|urlencode }}{% endif %}">Älter →</a>
         {% else %}
