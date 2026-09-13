@@ -123,14 +123,22 @@ def _fetch_traffic_overview():
 
 
 def verkehr(request):
-    """Staus/Sperrungen, Hörer-Verkehrsmeldungen und Blitzer-Meldungen, live vom Studio abgerufen
-    (dieselben Daten wie on air). Wirft nie - ist das Studio gerade nicht erreichbar, zeigt die
-    Seite einen Hinweis statt eines Fehlers."""
+    """Staus/Sperrungen und Blitzer-Meldungen, live vom Studio abgerufen (dieselben Daten wie
+    on air). Wirft nie - ist das Studio gerade nicht erreichbar, zeigt die Seite einen Hinweis
+    statt eines Fehlers."""
     traffic, hotline_traffic, blitzer, error = _fetch_traffic_overview()
 
+    # Offizielle Meldungen und Hörer-Verkehrsmeldungen zusammen in EINER, nach Dringlichkeit
+    # sortierten Liste - keine eigene "Hörer-Hotline"-Sektion mehr, sie sollen genauso aussehen
+    # und behandelt werden wie die offiziellen Meldungen.
+    combined_traffic = sorted(
+        traffic + hotline_traffic,
+        key=lambda item: item.get('urgent', False),
+        reverse=True,
+    )
+
     return render(request, 'radio/verkehr.html', {
-        'traffic': traffic,
-        'hotline_traffic': hotline_traffic,
+        'traffic': combined_traffic,
         'blitzer': blitzer,
         'error': error,
     })

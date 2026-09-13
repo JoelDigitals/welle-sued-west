@@ -113,7 +113,8 @@
         <div class="traffic-card">
           <div class="traffic-card-head">
             <span class="chip">{{ item.region }}</span>
-            {% if item.place or item.road %}<span class="show-time">{{ item.place|default:item.road }}</span>{% endif %}
+            {% if item.place %}<span class="show-time">{{ item.place }}</span>{% endif %}
+            {% if item.road %}<span class="show-time">{{ item.road }}</span>{% endif %}
           </div>
           {% if item.message %}<p>{{ item.message }}</p>{% endif %}
         </div>

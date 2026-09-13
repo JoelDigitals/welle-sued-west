@@ -25,35 +25,21 @@
           <div class="traffic-card-head">
             {% include 'radio/_traffic_category_badge.html' with category=item.category %}
             <span class="chip">{{ item.region }}</span>
+            {% if item.place %}<span class="show-time">{{ item.place }}</span>{% endif %}
             {% if item.road %}<span class="show-time">{{ item.road }}</span>{% endif %}
           </div>
-          <h3>{{ item.headline }}</h3>
-          {% if item.message and item.message != item.headline %}
+          {% if item.headline %}
+            <h3>{{ item.headline }}</h3>
+            {% if item.message and item.message != item.headline %}
+              <p>{{ item.message }}</p>
+            {% endif %}
+          {% elif item.message %}
             <p>{{ item.message }}</p>
           {% endif %}
         </div>
         {% empty %}
         {% if not error %}
         <p class="traffic-empty">Aktuell keine größeren Behinderungen gemeldet.</p>
-        {% endif %}
-        {% endfor %}
-      </div>
-
-      <h2 class="traffic-heading" style="margin-top:48px;">Aus der Hörer-Hotline</h2>
-      <p class="traffic-hint">Verkehrsmeldungen, die uns Hörerinnen und Hörer direkt gemeldet haben – dieselben, die auch im Programm laufen.</p>
-      <div class="traffic-list">
-        {% for item in hotline_traffic %}
-        <div class="traffic-card {% if item.urgent %}traffic-card-urgent{% endif %}">
-          <div class="traffic-card-head">
-            {% include 'radio/_traffic_category_badge.html' with category=item.category %}
-            <span class="chip">{{ item.region }}</span>
-            {% if item.place or item.road %}<span class="show-time">{{ item.place|default:item.road }}</span>{% endif %}
-          </div>
-          {% if item.message %}<p>{{ item.message }}</p>{% endif %}
-        </div>
-        {% empty %}
-        {% if not error %}
-        <p class="traffic-empty">Aktuell keine Hörer-Meldungen.</p>
         {% endif %}
         {% endfor %}
       </div>
@@ -65,7 +51,8 @@
         <div class="traffic-card">
           <div class="traffic-card-head">
             <span class="chip">{{ item.region }}</span>
-            {% if item.place or item.road %}<span class="show-time">{{ item.place|default:item.road }}</span>{% endif %}
+            {% if item.place %}<span class="show-time">{{ item.place }}</span>{% endif %}
+            {% if item.road %}<span class="show-time">{{ item.road }}</span>{% endif %}
           </div>
           {% if item.message %}<p>{{ item.message }}</p>{% endif %}
         </div>
