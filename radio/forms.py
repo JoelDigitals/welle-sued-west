@@ -8,6 +8,7 @@ from .models import ContactMessage
 HOTLINE_TYPES = [
     ('verkehr', 'Verkehr (Stau, Unfall, Sperrung)'),
     ('blitzer', 'Blitzer'),
+    ('entwarnung', 'Entwarnung (Blitzer/Unfall/Stau ist nicht mehr da)'),
     ('wetter', 'Wetter'),
     ('gruss', 'Grüße'),
     ('musikwunsch', 'Musikwunsch'),
@@ -56,7 +57,7 @@ class HotlineForm(forms.Form):
 
     def clean(self):
         cleaned = super().clean()
-        if cleaned.get('type') in ('verkehr', 'blitzer') and len(cleaned.get('place', '')) < 2:
+        if cleaned.get('type') in ('verkehr', 'blitzer', 'entwarnung') and len(cleaned.get('place', '')) < 2:
             self.add_error('place', 'Bitte Ort angeben.')
         # Nur bei Blitzer optional (siehe message-Feld oben) - bei allen anderen Meldungsarten
         # bleibt eine echte Nachricht Pflicht, sonst gibt es inhaltlich nichts zu melden.
