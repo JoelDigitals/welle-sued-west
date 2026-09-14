@@ -83,10 +83,14 @@ def home(request):
 
     # Kleine Vorschau aus der Hörer-Hotline (Verkehr + Blitzer zusammen, neueste zuerst) - dieselben
     # Meldungen, die auch im Programm laufen, gehören genauso auf die Startseite wie die News.
+    # Blitzer werden bewusst NICHT mit auf 3 begrenzt (Nutzer-Feedback: "Es dürfen auf der Homepage
+    # aber alle Blitzer angezeigt werden") - nur die allgemeinen Verkehrs-Hörermeldungen bleiben als
+    # kurze Vorschau begrenzt, sonst würde die Startseite bei vielen offenen Verkehrslagen
+    # unübersichtlich lang.
     _, hotline_traffic, blitzer, _ = _fetch_traffic_overview()
     hotline_items = sorted(
-        hotline_traffic + blitzer, key=lambda h: h.get('createdAt', 0), reverse=True,
-    )[:3]
+        hotline_traffic[:3] + blitzer, key=lambda h: h.get('createdAt', 0), reverse=True,
+    )
 
     context = {
         'shows': Show.objects.all()[:3],
