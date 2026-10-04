@@ -31,10 +31,17 @@ if RENDER_EXTERNAL_HOSTNAME:
 # --- Externe Player-/Metadaten-Quelle -----------------------------------
 # Zentral an einer Stelle konfiguriert, damit sie sich leicht austauschen
 # lässt (z. B. wenn das Studio-Backend einmal umzieht).
-RADIO_STUDIO_BASE_URL = 'https://welle-sued-west-studio.onrender.com'
-RADIO_PLAYER_EMBED_URL = f'{RADIO_STUDIO_BASE_URL}/player'
-RADIO_NOWPLAYING_API_URL = f'{RADIO_STUDIO_BASE_URL}/api/public/nowplaying'
-RADIO_LIVE_STREAM_URL = f'{RADIO_STUDIO_BASE_URL}/live-stream'
+RADIO_STUDIO_BASE_URL = os.environ.get(
+    'RADIO_STUDIO_BASE_URL', 'https://welle-sued-west-studio.onrender.com'
+)
+# Der Webplayer (inkl. Now-Playing und Live-Stream) kommt vom Cloudflare-Worker des Studios.
+# Der leitet die Sende-Engine-Anfragen selbst an Render weiter - es bleibt also ein Sender.
+RADIO_PLAYER_BASE_URL = os.environ.get(
+    'RADIO_PLAYER_BASE_URL', 'https://welle-s-dwest-studio.joel-digitals.workers.dev'
+)
+RADIO_PLAYER_EMBED_URL = f'{RADIO_PLAYER_BASE_URL}/player'
+RADIO_NOWPLAYING_API_URL = f'{RADIO_PLAYER_BASE_URL}/api/public/nowplaying'
+RADIO_LIVE_STREAM_URL = f'{RADIO_PLAYER_BASE_URL}/live-stream'
 RADIO_HOTLINE_API_URL = f'{RADIO_STUDIO_BASE_URL}/api/public/hotline'
 RADIO_AD_REQUESTS_API_URL = f'{RADIO_STUDIO_BASE_URL}/api/public/ad-requests'
 RADIO_TRAFFIC_API_URL = f'{RADIO_STUDIO_BASE_URL}/api/public/traffic-overview'
